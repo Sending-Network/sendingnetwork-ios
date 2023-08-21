@@ -1,0 +1,320 @@
+/*
+ Copyright 2014 OpenMarket Ltd
+ Copyright 2017 Vector Creations Ltd
+ Copyright 2019 The Matrix.org Foundation C.I.C
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+ 
+ http://www.apache.org/licenses/LICENSE-2.0
+ 
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+ */
+
+#import <Foundation/Foundation.h>
+
+#import "MXHTTPOperation.h"
+
+/**
+ `MXHTTPClientErrorResponseDataKey`
+ The corresponding value is an `NSDictionary` containing the response data of the operation associated with an error.
+ */
+extern NSString * const MXHTTPClientErrorResponseDataKey;
+
+/**
+ Posted when the user did not consent to GDPR.
+ */
+FOUNDATION_EXPORT NSString* const kMXHTTPClientUserConsentNotGivenErrorNotification;
+/**
+ Consent URI userInfo key for notification kMXHTTPClientUserConsentNotGivenErrorNotification
+ */
+FOUNDATION_EXPORT NSString* const kMXHTTPClientUserConsentNotGivenErrorNotificationConsentURIKey;
+/**
+ Posted when a SDN error is observed.
+ The `userInfo` dictionary contains an `MXError` object under the `kMXHTTPClientSDNErrorNotificationErrorKey` key
+ */
+FOUNDATION_EXPORT NSString* const kMXHTTPClientSDNErrorNotification;
+FOUNDATION_EXPORT NSString* const kMXHTTPClientSDNErrorNotificationErrorKey;
+
+/**
+ Block called when an authentication challenge from a server failed whereas a certificate is present in certificate chain.
+ 
+ @param certificate the server certificate to evaluate.
+ @return YES to accept/trust this certificate, NO to cancel/ignore it.
+ */
+typedef BOOL (^MXHTTPClientOnUnrecognizedCertificate)(NSData *certificate);
+
+/**
+ Block called when an authenticated request fails and is used  to validate the response error.
+
+ @param error A request error.
+ 
+ @return YES if the access token should be refreshed for the given error.
+ */
+typedef BOOL (^MXHTTPClientTokenValidationResponseHandler)(NSError *error);
+
+/**
+ Block called when an authenticated request requires an access token.
+
+ @param error  A request error. Passed if token provider is called as a result of `MXHTTPClientTokenValidationResponseHandler` returning true on after an access token error in a response.
+ @param success A block object called when the operation succeeds. It provides the access token.
+ @param failure A block object called when the operation fails.
+ */
+typedef void (^MXHTTPClientTokenProviderHandler)(NSError *error, void (^success)( NSString *accessToken), void (^failure)(NSError *error));
+
+/**
+ SSL Pinning mode
+ */
+typedef NS_ENUM(NSUInteger, MXHTTPClientSSLPinningMode) {
+    /**
+     Do not used pinned certificates to validate servers.
+     */
+    MXHTTPClientSSLPinningModeNone,
+    /**
+     Validate host certificates against public keys of pinned certificates.
+     */
+    MXHTTPClientSSLPinningModePublicKey,
+    /**
+     Validate host certificates against pinned certificates.
+     */
+    MXHTTPClientSSLPinningModeCertificate,
+};
+
+/**
+ `MXHTTPClient` is an abstraction layer for making requests to a HTTP server.
+
+*/
+@interface MXHTTPClient : NSObject
+
+
+#pragma mark - Configuration
+/**
+ `requestParametersInJSON` indicates if parameters passed in [self requestWithMethod:..] methods
+ must be serialised in JSON.
+ Else, they will be send in form data.
+ Default is YES.
+ */
+@property (nonatomic) BOOL requestParametersInJSON;
+
+/**
+ The current trusted certificate (if any).
+ */
+@property (nonatomic, readonly) NSData* allowedCertificate;
+
+/**
+ The acceptable MIME types for responses.
+ */
+@property (nonatomic, copy) NSSet <NSString *> *acceptableContentTypes;
+
+/**
+ The server URL from which requests will be done.
+ */
+@property (nonatomic, readonly) NSURL *baseURL;
+
+/**
+ The access token used for authenticated requests.
+ */
+@property (nonatomic, readonly) NSString *accessToken;
+
+/**
+ Block called when a request needs authentication and access token should be renewed.
+ */
+@property (nonatomic, copy) MXHTTPClientTokenValidationResponseHandler tokenValidationResponseHandler;
+
+/**
+ Block called when an authenticated request requires an access token.
+ */
+@property (nonatomic, copy) MXHTTPClientTokenProviderHandler tokenProviderHandler;
+
+/**
+ Whether or not the client is able to send authenticated requests.
+ */
+@property (nonatomic, readonly) BOOL isAuthenticatedClient;
+
+#pragma mark - Public methods
+/**
+ Create an instance to make requests to the server.
+
+ @param baseURL the server URL from which requests will be done.
+ @param onUnrecognizedCertBlock the block called to handle unrecognised certificate (nil if unrecognised certificates are ignored).
+ @return a MXHTTPClient instance.
+ */
+- (id)initWithBaseURL:(NSString*)baseURL andOnUnrecognizedCertificateBlock:(MXHTTPClientOnUnrecognizedCertificate)onUnrecognizedCertBlock;
+
+/**
+ Create an instance to make requests to the server.
+ MXHTTPClient will automatically add the access token to requested URLs
+
+ @param baseURL the server URL from which requests will be done.
+ @param authenticated whether the client is required make authenticated requests.
+ @param onUnrecognizedCertBlock the block called to handle unrecognised certificate (nil if unrecognised certificates are ignored).
+ @return a MXHTTPClient instance.
+ */
+- (id)initWithBaseURL:(NSString*)baseURL authenticated:(BOOL)authenticated andOnUnrecognizedCertificateBlock:(MXHTTPClientOnUnrecognizedCertificate)onUnrecognizedCertBlock;
+
+/**
+ Make a HTTP request to the server.
+
+ @param httpMethod the HTTP method (GET, PUT, ...)
+ @param path the relative path of the server API to call.
+ @param parameters the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+ 
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                   path:(NSString *)path
+             parameters:(NSDictionary*)parameters
+                success:(void (^)(NSDictionary *JSONResponse))success
+                failure:(void (^)(NSError *error))failure;
+
+/**
+ Make a HTTP request to the server with a timeout.
+
+ @param httpMethod the HTTP method (GET, PUT, ...)
+ @param path the relative path of the server API to call.
+ @param parameters the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+ @param timeoutInSeconds the timeout allocated for the request.
+
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                   path:(NSString *)path
+             parameters:(NSDictionary*)parameters
+                timeout:(NSTimeInterval)timeoutInSeconds
+                success:(void (^)(NSDictionary *JSONResponse))success
+                failure:(void (^)(NSError *error))failure;
+
+/**
+ Make a HTTP request to the server with all possible options.
+
+ @param path the relative path of the server API to call.
+ @param parameters (optional) the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+ @param data (optional) the data to post.
+ @param headers (optional) the HTTP headers to set.
+ @param timeoutInSeconds (optional) the timeout allocated for the request.
+ 
+ @param uploadProgress (optional) A block object called when the upload progresses.
+
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+ 
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                             path:(NSString *)path
+                       parameters:(NSDictionary*)parameters
+                             data:(NSData *)data
+                          headers:(NSDictionary*)headers
+                          timeout:(NSTimeInterval)timeoutInSeconds
+                   uploadProgress:(void (^)(NSProgress *uploadProgress))uploadProgress
+                          success:(void (^)(NSDictionary *JSONResponse))success
+                          failure:(void (^)(NSError *error))failure;
+
+
+/**
+ Make a HTTP request to the server.
+ 
+ @param httpMethod the HTTP method (GET, PUT, ...)
+ @param path the relative path of the server API to call.
+ @param parameters the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+ @param needsAuthentication Indicate YES if the request is authenticated.
+ 
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+ 
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                                 path:(NSString *)path
+                           parameters:(NSDictionary*)parameters
+                  needsAuthentication:(BOOL)needsAuthentication
+                              success:(void (^)(NSDictionary *JSONResponse))success
+                              failure:(void (^)(NSError *error))failure;
+
+/**
+ Make a HTTP request to the server with a timeout.
+ 
+ @param httpMethod the HTTP method (GET, PUT, ...)
+ @param path the relative path of the server API to call.
+ @param parameters the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+ @param needsAuthentication Indicate YES if the request is authenticated.
+ @param timeoutInSeconds the timeout allocated for the request.
+ 
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+ 
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                                 path:(NSString *)path
+                           parameters:(NSDictionary*)parameters
+                   needsAuthentication:(BOOL)needsAuthentication
+                              timeout:(NSTimeInterval)timeoutInSeconds
+                              success:(void (^)(NSDictionary *JSONResponse))success
+                              failure:(void (^)(NSError *error))failure;
+
+/**
+ Make a HTTP request to the server with all possible options.
+ 
+ @param path the relative path of the server API to call.
+ @param parameters (optional) the parameters to be set as a query string for `GET` requests, or the request HTTP body.
+ @param needsAuthentication Indicate YES if the request is authenticated.
+ @param data (optional) the data to post.
+ @param headers (optional) the HTTP headers to set.
+ @param timeoutInSeconds (optional) the timeout allocated for the request.
+ 
+ @param uploadProgress (optional) A block object called when the upload progresses.
+ 
+ @param success A block object called when the operation succeeds. It provides the JSON response object from the the server.
+ @param failure A block object called when the operation fails.
+ 
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation*)requestWithMethod:(NSString *)httpMethod
+                                 path:(NSString *)path
+                           parameters:(NSDictionary*)parameters
+                  needsAuthentication:(BOOL)needsAuthentication
+                                 data:(NSData *)data
+                              headers:(NSDictionary*)headers
+                              timeout:(NSTimeInterval)timeoutInSeconds
+                       uploadProgress:(void (^)(NSProgress *uploadProgress))uploadProgress
+                              success:(void (^)(NSDictionary *JSONResponse))success
+                              failure:(void (^)(NSError *error))failure;
+
+/**
+ Return the amount of time to wait before retrying a request.
+ 
+ The time is based on an exponential backoff plus a jitter in order to prevent all SDN clients 
+ from retrying all in the same time if there is server side issue like server restart.
+ 
+ @return a time in milliseconds like [2000, 4000, 8000, 16000, ...] + a jitter of 3000ms.
+ */
++ (NSUInteger)timeForRetry:(MXHTTPOperation*)httpOperation;
+
+/**
+ The certificates used to evaluate server trust.
+ The default SSL pinning mode is MXHTTPClientSSLPinningModeCertificate when the provided set is not empty.
+ Set an empty set or null to restore the default security policy.
+ */
+@property (nonatomic, strong) NSSet<NSData *> *pinnedCertificates;
+
+/**
+ Set the certificates used to evaluate server trust and the SSL pinning mode.
+ 
+ @param pinnedCertificates The certificates to pin against.
+ @param pinningMode The SSL pinning mode.
+ */
+- (void)setPinnedCertificates:(NSSet<NSData *> *)pinnedCertificates withPinningMode:(MXHTTPClientSSLPinningMode)pinningMode;
+
+@end

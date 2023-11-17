@@ -311,9 +311,11 @@ static NSUInteger requestCount = 0;
         [httpManager.requestSerializer clearAuthorizationHeader];
     }
 
-    NSString *URLString = [[NSURL URLWithString:path relativeToURL:httpManager.baseURL] absoluteString];
-    
+//    NSString *URLString = [[NSURL URLWithString:path relativeToURL:httpManager.baseURL] absoluteString];
+    NSString *URLString = [[NSURL URLWithString:path relativeToURL:[NSURL URLWithString:MXSDKOptions.sharedInstance.sdnBaseUrl]] absoluteString];
     NSMutableURLRequest *request;
+ 
+    
     request = [httpManager.requestSerializer requestWithMethod:httpMethod URLString:URLString parameters:parameters error:nil];
     if (data)
     {

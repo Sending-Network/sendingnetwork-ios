@@ -28,9 +28,6 @@ NS_ASSUME_NONNULL_BEGIN
 
 #pragma mark - Defines & Constants
 
-static NSString * const sdnDemoBaseUrl = @"https://beginner.sending.network";
-
-
 /**
  Notification name sent when "M_TERMS_NOT_SIGNED" error occured. Provides identity server and identity server access token.
  Give an associated userInfo dictionary of type NSDictionary<NSString*, NSString*> with following keys: "userId", "identityServer", "accessToken". Use constants below for convenience.

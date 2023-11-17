@@ -282,6 +282,18 @@ FOUNDATION_EXPORT NSInteger const kMXRoomInvalidInviteSenderErrorCode;
 
 
 #pragma mark - Room operations
+
+/**
+  get meeting  url
+
+ @param success return meeting  url
+ @param failure A block object called when the operation fails.
+ @return a MXHTTPOperation instance.
+ */
+- (void)getMeetingSvr:(void (^)(NSString  *url))success
+                                 failure:(void (^)(NSError *error))failure;
+
+
 /**
  Send a generic non state event to a room.
 

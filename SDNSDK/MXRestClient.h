@@ -312,6 +312,14 @@ NS_REFINED_FOR_SWIFT;
                      failure:(void (^)(NSError *error))failure;
 
 /**
+  get meeting  url
+
+ @param success return meeting  url
+ @param failure A block object called when the operation fails.
+ */
+- (void)getMeetingSvr:(void (^)(NSString  *url))success
+                          failure:(void (^)(NSError *error))failure;
+/**
  Get the capabilities of the node.
 
  @param success A block object called when the operation succeeds. It provides

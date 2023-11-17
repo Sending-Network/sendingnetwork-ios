@@ -570,6 +570,52 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
     return operation;
 }
 
+
+- (void)getMeetingSvr:(void (^)(NSString  *url))success
+                     failure:(void (^)(NSError *error))failure
+{
+    NSString *path = @"_api/client/get_meeting_svr";
+    NSString *URLString = [[NSURL URLWithString:path relativeToURL:[NSURL URLWithString:MXSDKOptions.sharedInstance.sdnBaseUrl]] absoluteString];
+
+    MXWeakify(self);
+    
+    [httpClient requestWithMethod:@"GET"
+                                                          path:path
+                                                    parameters:nil
+                                                       success:^(NSDictionary *JSONResponse) {
+                                                           MXStrongifyAndReturnIfNil(self);
+
+                                                           if (success)
+                                                           {
+                                                               __block MXCapabilities *capabilities;
+                                                               [self dispatchProcessing:^{
+//                                                                   MXJSONModelSetMXJSONModel(capabilities, MXCapabilities, JSONResponse);
+                                                               } andCompletion:^{
+                                                                   if([JSONResponse isKindOfClass:[NSDictionary class]]){
+                                                                       success(JSONResponse[@"svrurl"]);
+                                                                   } else {
+                                                                       NSString *domain = @"error json";
+                                                                           NSString *desc = NSLocalizedString(@"Unable to…", @"");
+                                                                           NSDictionary *userInfo = @{ NSLocalizedDescriptionKey : desc };
+                                                                           NSError *error = [NSError errorWithDomain:domain
+                                                                                                                code:-101
+                                                                                                            userInfo:userInfo];
+                                                                       failure(error);
+                                                                   }
+                                                               }];
+                                                           }
+                                                       }
+                                                       failure:^(NSError *error) {
+                                                           MXStrongifyAndReturnIfNil(self);
+                                                           [self dispatchFailure:error inBlock:failure];
+                                                       }];
+    
+
+}
+
+
+
+
 - (MXHTTPOperation *)capabilities:(void (^)(MXCapabilities *))success
                           failure:(void (^)(NSError *))failure
 {
@@ -2632,6 +2678,7 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                        }
                              success:success failure:failure];
 }
+
 
 - (MXHTTPOperation*)inviteUserByEmail:(NSString*)email
                                toRoom:(NSString*)roomId

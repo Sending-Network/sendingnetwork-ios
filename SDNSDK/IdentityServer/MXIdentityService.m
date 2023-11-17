@@ -53,8 +53,7 @@ NSString *const MXIdentityServiceNotificationAccessTokenKey = @"accessToken";
 - (NSString *)identityServer
 {
     //TODOWG
-    return  sdnDemoBaseUrl;
-//    return self.restClient.identityServer;
+    return     MXSDKOptions.sharedInstance.sdnBaseUrl;
 }
 
 - (dispatch_queue_t)completionQueue
@@ -78,7 +77,7 @@ NSString *const MXIdentityServiceNotificationAccessTokenKey = @"accessToken";
 
 - (instancetype)initWithIdentityServer:(NSString *)identityServer accessToken:(nullable NSString*)accessToken andNodeRestClient:(MXRestClient*)nodeRestClient
 {
-    MXIdentityServerRestClient *identityServerRestClient = [[MXIdentityServerRestClient alloc] initWithIdentityServer:sdnDemoBaseUrl accessToken:accessToken andOnUnrecognizedCertificateBlock:nil];
+    MXIdentityServerRestClient *identityServerRestClient = [[MXIdentityServerRestClient alloc] initWithIdentityServer:MXSDKOptions.sharedInstance.sdnBaseUrl accessToken:accessToken andOnUnrecognizedCertificateBlock:nil];
 
     self = [self initWithIdentityServerRestClient:identityServerRestClient andNodeRestClient:nodeRestClient];
     if (self)

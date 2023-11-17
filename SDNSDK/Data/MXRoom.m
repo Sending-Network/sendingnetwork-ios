@@ -519,6 +519,14 @@ NSInteger const kMXRoomInvalidInviteSenderErrorCode = 9002;
 
 
 #pragma mark - Room operations
+
+- (void)getMeetingSvr:(void (^)(NSString  *url))success
+                       failure:(void (^)(NSError *error))failure
+{
+     [mxSession.sdnRestClient getMeetingSvr:success failure:failure];
+}
+
+
 - (MXHTTPOperation*)sendEventOfType:(MXEventTypeString)eventTypeString
                             content:(NSDictionary*)content
                            threadId:(NSString*)threadId
@@ -2076,6 +2084,7 @@ NSInteger const kMXRoomInvalidInviteSenderErrorCode = 9002;
 {
     return [mxSession.sdnRestClient reportEvent:eventId inRoom:self.roomId score:score reason:reason success:success failure:failure];
 }
+
 
 - (MXHTTPOperation*)setRelatedGroups:(NSArray<NSString *>*)relatedGroups
                         success:(void (^)(void))success

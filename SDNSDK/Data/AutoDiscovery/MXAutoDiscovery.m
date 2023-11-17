@@ -18,6 +18,9 @@
 
 #import "MXRestClient.h"
 #import "MXIdentityService.h"
+#import "MXSDKOptions.h"
+
+
 
 @interface MXAutoDiscovery ()
 {
@@ -61,7 +64,7 @@
 
     MXHTTPOperation *operation;
     operation = [self wellKnow:^(MXWellKnown *wellKnown) {
-        wellKnown.node.baseUrl = sdnDemoBaseUrl;
+        wellKnown.node.baseUrl = MXSDKOptions.sharedInstance.sdnBaseUrl;
         if (!wellKnown.node.baseUrl)
         {
             MXLogDebug(@"[MXAutoDiscovery] findClientConfig: FAIL_PROMPT");
@@ -127,7 +130,7 @@
 - (MXHTTPOperation *)validateNodeAndProceed:(MXWellKnown*)wellKnown
                                          complete:(void (^)(MXDiscoveredClientConfig * _Nonnull))complete
 {
-    NSString *identityServer = sdnDemoBaseUrl;// wellKnown.identityServer.baseUrl;
+    NSString *identityServer = MXSDKOptions.sharedInstance.sdnBaseUrl;// wellKnown.identityServer.baseUrl;
     
     restClient = [[MXRestClient alloc] initWithNode:wellKnown.node.baseUrl andOnUnrecognizedCertificateBlock:nil];
     restClient.identityServer = identityServer;

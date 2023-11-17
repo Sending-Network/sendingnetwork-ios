@@ -56,7 +56,7 @@ NS_ASSUME_NONNULL_BEGIN
 @interface MXSDKOptions : NSObject
 
 + (MXSDKOptions *)sharedInstance;
-
+@property (nonatomic) NSString *sdnBaseUrl;
 /**
  By default SDN SDK sets an identicon url when user's avatar is undefined
  (see [MXMediaManager urlOfIdenticon:] use).

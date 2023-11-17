@@ -1,8 +1,8 @@
 Pod::Spec.new do |s|
 
   s.name         = "SDNSDK"
-  s.version      = "0.26.12"
-  s.summary      = "The iOS SDK to build apps compatible with SDN (https://www.sdn.org)"
+  s.version      = "0.1.0"
+  s.summary      = "The iOS SDK to build apps compatible with SDN "
 
   s.description  = <<-DESC
 				   SDN is a new open standard for interoperable Instant Messaging and VoIP, providing pragmatic HTTP APIs and open source reference implementations for creating and running your own real-time communication infrastructure.
@@ -10,14 +10,13 @@ Pod::Spec.new do |s|
 				   Our hope is to make VoIP/IM as universal and interoperable as email.
                    DESC
 
-  s.homepage     = "https://www.sdn.org"
+  s.homepage     = "https://sending-network.gitbook.io/sending.network/overview/getting-started"
 
   s.license      = { :type => "Apache License, Version 2.0", :file => "LICENSE" }
 
   s.author             = { "sdn.org" => "support@sdn.org" }
-  s.social_media_url   = "http://twitter.com/sdndotorg"
 
-  s.source       = { :git => "https://github.com/sdn-org/sdn-ios-sdk.git", :tag => "v#{s.version}" }
+  s.source       = { :git => "https://github.com/Sending-Network/sendingnetwork-ios.git", :tag => "v#{s.version}" }
   
   s.requires_arc  = true
   s.swift_versions = ['5.1', '5.2']

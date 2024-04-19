@@ -68,9 +68,9 @@ As a quick overview, there are the classes to know to use the SDK.
 2. Select did or use address to log in. When the interface array is empty, use address to log in, otherwise use the first element of the array as the did parameter
 
     ```objective-c
-     - (MXHTTPOperation *)postPreLoginDID:(NSString *)did
-                                  success:(void (^) (MXPreLoginResponse *response))success
-                                 failure:(void (^)(NSError *error))failure;
+    - (MXHTTPOperation *)postPreLoginDID:(NSString *)did
+                             address:(NSString*)address
+                              success:(void (^) (MXPreLoginResponse *response))success;
     ```
    
     Entry parameters:

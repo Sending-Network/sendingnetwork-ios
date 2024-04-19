@@ -218,3 +218,14 @@ typedef NS_ENUM(NSUInteger, MXTimelineDirection)
  The sdn.to base URL.
  */
 FOUNDATION_EXPORT NSString *const kMXSDNDotToUrl;
+
+
+/**
+ The avatar trial state.
+ */
+typedef NS_ENUM(NSUInteger, MXAvatarTrialState) {
+    MXAvatarTrialStateNotOnTrial,
+    MXAvatarTrialStateOnGoing,
+    MXAvatarTrialStateAboutToExpire,
+    MXAvatarTrialStateExpired,
+};

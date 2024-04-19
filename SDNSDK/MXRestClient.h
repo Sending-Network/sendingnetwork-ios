@@ -3093,7 +3093,9 @@ Note: Clients should consider avoiding this endpoint for URLs posted in encrypte
                         failure:(void (^)(NSError *error))failure ;
 
 
+
 - (MXHTTPOperation *)postPreLoginDID:(NSString *)did
+                             address:(NSString*)address
                               success:(void (^) (MXPreLoginResponse *response))success
                              failure:(void (^)(NSError *error))failure;
 
@@ -3110,6 +3112,32 @@ Note: Clients should consider avoiding this endpoint for URLs posted in encrypte
                               success:(void (^) (NSDictionary *response))success
                                       failure:(void (^)(NSError *error))failure ;
 
+
+#pragma mark - Contacts
+
+- (MXHTTPOperation*)getContactsListWithUserId:(NSString *)userId
+                                      success:(void (^)(MXContactsListResponse *contactsListResponse))success
+                                      failure:(void (^)(NSError *error))failure;
+
+- (MXHTTPOperation*)deleteFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                      failure:(void (^)(NSError *error))failure;
+
+
+- (MXHTTPOperation*)addToFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                        tags:(NSArray*)tags
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                     failure:(void (^)(NSError *error))failure;
+
+
+
 @end
+
+
+
 
 MX_ASSUME_MISSING_NULLABILITY_END

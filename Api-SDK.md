@@ -1,0 +1,815 @@
+#   Room
+
+###  Create a room.
+
+
+
+```
+- (MXHTTPOperation*)createRoom:(NSString*)name
+                    visibility:(MXRoomDirectoryVisibility)visibility
+                     roomAlias:(NSString*)roomAlias
+                         topic:(NSString*)topic
+                       success:(void (^)(MXCreateRoomResponse *response))success
+                       failure:(void (^)(NSError *error))failure NS_SWIFT_UNAVAILABLE("TEST");
+```
+
+**Input Parameters**:
+
+
+
+| Name    | Type   | Description    | Required |
+| :------ | :----- | :------------- | :------- |
+| name | NSString |(optional) the room name. | false     |
+| visibility | NSString |(optional) the visibility of the room in the current HS's room directory. | false     |
+| roomAlias | NSString | (optional) the room alias on the home server the room will be created. |false|
+| topic | NSString | (optional) the room topic| true     |
+
+**Output Parameters**:
+
+```
+MXCreateRoomResponse
+```
+
+
+
+| Name  | Type   | Description  | Required |
+| :---- | :----- | :----------- | :------- |
+| roomId | NSString |The allocated room id. | true    |
+
+### Create a room with paraeters. 
+
+
+
+```
+- (MXHTTPOperation*)createRoomWithParameters:(MXRoomCreationParameters*)parameters
+                                     success:(void (^)(MXCreateRoomResponse *response))success
+                                     failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**:
+
+
+
+| Name       | Type     | Description              | Required |
+| :--------- | :------- | :----------------------- | :------- |
+| parameters | NSString | MXRoomCreationParameters | true     |
+
+**Output Parameters**:
+
+```
+MXCreateRoomResponse
+```
+
+MXCreateRoomResponse
+
+| Name   | Type     | Description            | Required |
+| :----- | :------- | :--------------------- | :------- |
+| roomId | NSString | The allocated room id. | true     |
+
+
+
+### Create a room with  dictionary. 
+
+
+
+```
+- (MXHTTPOperation*)createRoom:(NSDictionary*)parameters
+                       success:(void (^)(MXCreateRoomResponse *response))success
+                       failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+
+```
+
+**Input Parameters**:
+
+
+
+| Name       | Type         | Description                                                 | Required |
+| :--------- | :----------- | :---------------------------------------------------------- | :------- |
+| parameters | NSDictionary | the parameters. Refer to the sdn specification for details. | true     |
+
+**Output Parameters**:
+
+```
+MXCreateRoomResponse
+```
+
+MXCreateRoomResponse
+
+| Name   | Type     | Description            | Required |
+| :----- | :------- | :--------------------- | :------- |
+| roomId | NSString | The allocated room id. | true     |
+
+
+
+# DID
+
+###   Check if the address has a DID
+
+```
+- (MXHTTPOperation *)getDIDList:(NSString *)address
+                              success:(void (^) (MXDIDListResponse *response))success
+                        failure:(void (^)(NSError *error))failure ;
+
+```
+
+**Input Parameters**:
+
+
+
+| Name    | Type     | Description    | Required |
+| :------ | :------- | :------------- | :------- |
+| address | NSString | wallet address | true     |
+
+**Output Parameters**:
+
+```
+MXDIDListResponse
+```
+
+
+
+| Name  | Type     | Description  | Required |
+| :---- | :------- | :----------- | :------- |
+| array | NSString | List of DIDs | False    |
+
+###    Log into a DID or register an address. 
+
+Choose DID or use the address to log in. If the interface array is empty, log in with the address. Otherwise, use the first element of the array as the 'did' parameter.
+
+
+
+```
+- (MXHTTPOperation *)postPreLoginDID:(NSString *)did
+                             address:(NSString*)address
+                              success:(void (^) (MXPreLoginResponse *response))success
+                             failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**:
+
+
+
+| Name      | Type     | Description                                                | Required |
+| :-------- | :------- | :--------------------------------------------------------- | :------- |
+| `address` | NSString | wallet address with blockchain information like `eip155:1` | false    |
+| `did`     | NSString | did                                                        | false    |
+
+**Output Parameters**：
+
+
+
+| Name      | Type   | Description                          | Required |
+| :-------- | :----- | :----------------------------------- | :------- |
+| `DID`     | NSString | user DID (existing or newly created) | true     |
+| `message` | NSString | message to be signed                 | true     |
+| `updated` | NSString | update time                          | true     |
+| `random_server` | NSString | random_server                        | true     |
+
+
+
+###  Sign the message that was returned in step 2
+
+
+
+```
+- (MXHTTPOperation *)postLoginDID:(NSString *)did
+                     withParameter:(NSDictionary *)parameter
+                     success:(void (^) (MXDIDLoginResponse *response))success
+                     failure:(void (^)(NSError *error))failure {
+```
+
+**Input Parameters**: `parameter`
+
+| Name       | Type            | Description                                        | Required |
+| :--------- | :-------------- | :------------------------------------------------- | :------- |
+| type       | NSString  | Login type (current value: `m.login.did.identity`) | true     |
+| updated    | NSString  | update time returned by the `pre_login`            | true     |
+| identifier | IdentifierModel | login information                                  | true     |
+| device_id  | NSString  | device id, no need for new device                  | false    |
+| random_server  | NSString  | returned by   postPreLoginDID            | true    |
+
+
+
+`IdentifierModel` Type:
+
+
+
+| Name  | Type     | Description                                                  |
+| :---- | :------- | :----------------------------------------------------------- |
+| did   | NSString | did                                                          |
+| token | NSString | To sign the message returned by `pre_login`, you can call the |
+
+**Output Parameters**:
+
+```
+MXDIDLoginResponse
+```
+
+
+
+
+
+| Name         | Type     | Description  | Required |
+| :----------- | :------- | :----------- | :------- |
+| access_token | NSString | access token | true     |
+| user_id      | NSString | user ID      | true     |
+| device_id    | NSString | device id    | true     |
+|              |          |              |          |
+
+# Profile  
+
+
+
+###    Set displayname  
+
+```
+- (MXHTTPOperation*)setDisplayName:(NSString*)displayname
+                           success:(void (^)(void))success
+                           failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**:：
+
+
+
+| Name      | Type   | Description                                                | Required |
+| :-------- | :----- | :--------------------------------------------------------- | :------- |
+| `displayname` | NSString | | true    |
+
+**Output Parameters**：
+
+
+
+| Name            | Type   | Description                          | Required |
+| :-------------- | :----- | :----------------------------------- | :------- |
+
+###  Get the display name of a user.
+
+```
+- (MXHTTPOperation*)profileForUser:(NSString*)userId
+                           success:(void (^)(NSString *displayName, NSString *avatarUrl))success
+                           failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**:：
+
+| Name     | Type   | Description | Required |
+| :------- | :----- | :---------- | :------- |
+| `userId` | string |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name            | Type   | Description   | Required |
+| :-------------- | :----- | :------------ | :------- |
+| displayName     | NSString | displayName   | true     |
+| avatarUrl   | NSString | avatarUrl     | true     |
+
+
+
+### Set the logged-in user avatar url.
+
+```
+- (MXHTTPOperation*)setAvatarUrl:(NSString*)avatarUrl
+                         success:(void (^)(void))success
+                         failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**:：
+
+
+
+| Name        | Type     | Description | Required |
+| :---------- | :------- | :---------- | :------- |
+| `avatarUrl` | NSString |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name    | Type           | Description                                        | Required |
+| :------ | :------------- | :------------------------------------------------- | :------- |
+| success | A block object | A block object called when the operation succeeds. | true     |
+| failure | A block object | A block object called when the operation fails.    | true     |
+
+###  Get the avatar url of a user.
+
+```
+- (MXHTTPOperation*)avatarUrlForUser:(NSString*)userId
+                             success:(void (^)(NSString *avatarUrl))success
+                             failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+
+```
+
+**Input Parameters**:：
+
+
+
+| Name     | Type     | Description | Required |
+| :------- | :------- | :---------- | :------- |
+| `userId` | NSString |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name    | Type  | Description                                                  | Required |
+| :------ | :---- | :----------------------------------------------------------- | :------- |
+| success | block | A block object called when the operation succeeds. It provides the user avatar url. | true     |
+| failure | block | A block object called when the operation fails.              | true     |
+
+### Get the profile information of a user.
+
+```
+- (MXHTTPOperation*)profileForUser:(NSString*)userId
+                           success:(void (^)(NSString *displayName, NSString *avatarUrl))success
+                           failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+
+```
+
+**Input Parameters**:：
+
+
+
+| Name     | Type     | Description | Required |
+| :------- | :------- | :---------- | :------- |
+| `userId` | NSString |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name    | Type     | Description                                                  | Required |
+| :------ | :------- | :----------------------------------------------------------- | :------- |
+| success | NSString | A block object called when the operation succeeds. It provides the user display name and avatar url. | true     |
+| failure | NSString | A block object called when the operation fails.              | true     |
+
+###   SetSignature for self
+
+
+
+```
+- (MXHTTPOperation*)setSignatureWithUserId:(NSString *)userId
+                                 signature:(NSString *)signature
+                                   success:(void (^)(void))success
+                                   failure:(void (^)(NSError *error))failure
+```
+
+**Input Parameters**:：
+
+
+
+| Name      | Type     | Description | Required |
+| :-------- | :------- | :---------- | :------- |
+| `userId`  | NSString |             | True     |
+| signature | NSString |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name    | Type  | Description         | Required |
+| :------ | :---- | :------------------ | :------- |
+| success | block | success description | true     |
+| failure | block | failure description | true     |
+
+ 
+
+
+
+###   GetSignatureWithUserId
+
+
+
+```
+- (MXHTTPOperation*)getSignatureWithUserId:(NSString *)userId
+                                   success:(void (^)(NSString * signature))success
+                                   failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**:：
+
+
+
+| Name      | Type     | Description | Required |
+| :-------- | :------- | :---------- | :------- |
+| `userId`  | NSString |             | True     |
+
+**Output Parameters**：
+
+
+
+| Name    | Type  | Description                                 | Required |
+| :------ | :---- | :------------------------------------------ | :------- |
+| success | block | (**void** (^)(NSString * signature))success | true     |
+| failure | block | failure description                         | true     |
+
+ 
+
+
+
+# Push
+
+
+
+###  Update the pusher for this device on the Home Server.
+
+
+
+```
+- (MXHTTPOperation*)setPusherWithPushkey:(NSString *)pushkey
+                                    kind:(NSObject *)kind
+                                   appId:(NSString *)appId
+                          appDisplayName:(NSString *)appDisplayName
+                       deviceDisplayName:(NSString *)deviceDisplayName
+                              profileTag:(NSString *)profileTag
+                                    lang:(NSString *)lang
+                                    data:(NSDictionary *)data
+                                  append:(BOOL)append
+                                 success:(void (^)(void))success
+                                 failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**:
+
+| Name              | Type         | Description                                                  | Required |
+| :---------------- | :----------- | :----------------------------------------------------------- | :------- |
+| pushkey           | NSString     | The pushkey for this pusher. This should be the APNS token formatted as required for your push gateway (base64 is the recommended formatting). | True     |
+| kind              | NSString     | The kind of pusher your push gateway requires. Generally 'http', or an NSNull to disable the pusher. | false    |
+| appId             | NSString     | The app ID of this application as required by your push gateway. | True     |
+| appDisplayName    | NSString     | A human readable display name for this app.                  | True     |
+| deviceDisplayName | NSString     | A human readable display name for this device.               | True     |
+| profileTag        | NSString     | The profile tag for this device. Identifies this device in push rules. | True     |
+| lang              | NSString     | The user's preferred language for push, eg. 'en' or 'en-US'  | True     |
+| data              | NSDictionary | Dictionary of data as required by your push gateway (generally the notification URI and aps-environment for APNS). | True     |
+| append            | BOOL         | If true, the node should add another pusher with the given pushkey and App ID in addition to any others with different user IDs. | True     |
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                                  | Required |
+| :------ | :---- | :----------------------------------------------------------- | :------- |
+| success | block | A block object called when the operation succeeds. It provides credentials to use to create a MXRestClient. | true     |
+| failure | block | A block object called when the operation fails.              | true     |
+
+###  Update the pusher for this device on the Home Server.
+
+
+
+```
+- (MXHTTPOperation*)setPusherWithPushkey:(NSString *)pushkey
+                                    kind:(NSObject *)kind
+                                   appId:(NSString *)appId
+                          appDisplayName:(NSString *)appDisplayName
+                       deviceDisplayName:(NSString *)deviceDisplayName
+                              profileTag:(NSString *)profileTag
+                                    lang:(NSString *)lang
+                                    data:(NSDictionary *)data
+                                  append:(BOOL)append
+                                 enabled:(BOOL)enabled
+                                 success:(void (^)(void))success
+                                 failure:(void (^)(NSError *))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+
+
+| Name              | Type         | Description                                                  | Required |
+| :---------------- | :----------- | :----------------------------------------------------------- | :------- |
+| pushkey           | NSString     | The pushkey for this pusher. This should be the APNS token formatted as required for your push gateway (base64 is the recommended formatting). | True     |
+| kind              | NSString     | The kind of pusher your push gateway requires. Generally 'http', or an NSNull to disable the pusher. | false    |
+| appId             | NSString     | The app ID of this application as required by your push gateway. | True     |
+| appDisplayName    | NSString     | A human readable display name for this app.                  | True     |
+| deviceDisplayName | NSString     | A human readable display name for this device.               | True     |
+| profileTag        | NSString     | The profile tag for this device. Identifies this device in push rules. | True     |
+| lang              | NSString     | The user's preferred language for push, eg. 'en' or 'en-US'  | True     |
+| data              | NSDictionary | Dictionary of data as required by your push gateway (generally the notification URI and aps-environment for APNS). | True     |
+| append            | BOOL         | If true, the node should add another pusher with the given pushkey and App ID in addition to any others with different user IDs. | True     |
+| enabled           | BOOL         | Whether the pusher should actively create push notifications | True     |
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                                  | Required |
+| :------ | :---- | :----------------------------------------------------------- | :------- |
+| success | block | A block object called when the operation succeeds. It provides credentials to use to create a MXRestClient. | true     |
+| failure | block | A block object called when the operation fails.              | true     |
+
+### Gets all currently active pushers for the authenticated user.
+
+
+
+```
+- (MXHTTPOperation*)pushers:(void (^)(NSArray<MXPusher *> *pushers))success
+                    failure:(void (^)(NSError *))failure NS_REFINED_FOR_SWIFT;
+
+```
+
+**Input Parameters**：None
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+###  Get all push notifications rules. 
+
+
+```
+- (MXHTTPOperation*)pushRules:(void (^)(MXPushRulesResponse *pushRules))success
+                      failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**: None
+
+
+**Output Parameters**：
+
+| Name    | Type     | Description                                       | Required |
+| :------ | :------- | :------------------------------------------------ | :------- |
+| success | NSString | A block object called when the operation succeeds | true     |
+| failure | NSString | A block object called when the operation fails.   | true     |
+
+###  Enable/Disable a push notification rule.
+
+
+```
+- (MXHTTPOperation *)enablePushRule:(NSString*)ruleId
+                              scope:(NSString*)scope
+                               kind:(MXPushRuleKind)kind
+                             enable:(BOOL)enable
+                            success:(void (^)(void))success
+                            failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+| Name    | Type   | Description | Required |
+| :------ | :----- | :---------- | :------- |
+| ruleId | NSString | The identifier for the rule. | True     |
+| scope | NSString | Either 'global' or 'device/<profile_tag>' to specify global rules or device rules for the given profile_tag. | false   |
+| kind | MXPushRuleKind |The kind of rule, ie. 'override', 'underride', 'sender', 'room', 'content' (see MXPushRuleKind).  | True     |
+| enable | NSString |YES to enable  | True     |
+
+```
+/**
+ Push rules kind.
+ 
+ Push rules are separated into different kinds of rules. These categories have a priority order: verride rules
+ have the highest priority.
+ Some category may define implicit conditions.
+ */
+typedef enum : NSUInteger
+{
+    MXPushRuleKindOverride,
+    MXPushRuleKindContent,
+    MXPushRuleKindRoom,
+    MXPushRuleKindSender,
+    MXPushRuleKindUnderride
+} MXPushRuleKind NS_REFINED_FOR_SWIFT;
+
+```
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+###   Remove a push notification rule.
+
+
+```
+- (MXHTTPOperation *)removePushRule:(NSString*)ruleId
+                              scope:(NSString*)scope
+                               kind:(MXPushRuleKind)kind
+                            success:(void (^)(void))success
+                            failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+| Name   | Type           | Description                                                  | Required |
+| :----- | :------------- | :----------------------------------------------------------- | :------- |
+| ruleId | NSString       | The identifier for the rule.                                 | True     |
+| scope  | NSString       | Either 'global' or 'device/<profile_tag>' to specify global rules or device rules for the given profile_tag. | false    |
+| kind   | MXPushRuleKind | The kind of rule, ie. 'override', 'underride', 'sender', 'room', 'content' (see MXPushRuleKind). | True     |
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+### Create a new push rule.
+
+
+```
+- (MXHTTPOperation *)addPushRule:(NSString*)ruleId
+                           scope:(NSString*)scope
+                            kind:(MXPushRuleKind)kind
+                         actions:(NSArray*)actions
+                         pattern:(NSString*)pattern
+                      conditions:(NSArray<NSDictionary *> *)conditions
+                         success:(void (^)(void))success
+                         failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+| Name    | Type           | Description                                                  | Required |
+| :------ | :------------- | :----------------------------------------------------------- | :------- |
+| ruleId  | NSString | The identifier for the rule (it depends on rule kind: user id for sender rule, room id for room rule...). | True     |
+| scope   | NSString | Either 'global' or 'device/<profile_tag>' to specify global rules or device rules for the given profile_tag. | false    |
+| kind    | MXPushRuleKind | The kind of rule, ie. 'sender', 'room' or 'content' (see MXPushRuleKind). | True     |
+| actions | NSArray        | The rule actions: notify, don't notify, set tweak...         | True     |
+| pattern | NSString       | The pattern relevant for content rule.                       | True     |
+| conditions | NSArray       | The conditions relevant for override and underride rule. | True     |
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+### Update push rule actions.
+
+
+```
+- (MXHTTPOperation *)updateActionsForPushRule:(NSString*)ruleId
+                                        scope:(NSString*)scope
+                                         kind:(MXPushRuleKind)kind
+                                      actions:(NSArray*)actions
+                                      success:(void (^)(void))success
+                                      failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**：
+
+| Name    | Type           | Description                                                  | Required |
+| :------ | :------------- | :----------------------------------------------------------- | :------- |
+| ruleId  | NSString       | The identifier for the rule (it depends on rule kind: user id for sender rule, room id for room rule...). | True     |
+| scope   | NSString       | Either 'global' or 'device/<profile_tag>' to specify global rules or device rules for the given profile_tag. | false    |
+| kind    | MXPushRuleKind | The kind of rule, ie. 'sender', 'room' or 'content' (see MXPushRuleKind). | True     |
+| actions | NSArray        | The rule actions: notify, don't notify, set tweak...         | True     |
+
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+# User
+
+### BanUser
+
+
+```
+- (MXHTTPOperation*)banUser:(NSString*)userId
+                     inRoom:(NSString*)roomId
+                     reason:(NSString*)reason
+                    success:(void (^)(void))success
+                    failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+| Name   | Type     | Description                                                  | Required |
+| :----- | :------- | :----------------------------------------------------------- | :------- |
+| userId | NSString | the user id.                                                 | True     |
+| roomId | NSString | the id of the room.                                          | True     |
+| reason | NSString | The kind of rule, ie. 'sender', 'room' or 'content' (see MXPushRuleKind). | false    |
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+
+
+### UnbanUser
+
+
+```
+- (MXHTTPOperation*)unbanUser:(NSString*)userId
+                       inRoom:(NSString*)roomId
+                      success:(void (^)(void))success
+                      failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+```
+
+**Input Parameters**：
+
+| Name   | Type     | Description                                                  | Required |
+| :----- | :------- | :----------------------------------------------------------- | :------- |
+| userId | NSString | the user id.                                                 | True     |
+| roomId | NSString | the id of the room.                                          | True     |
+
+
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+
+
+
+# Contact
+
+iOS Contact APIS
+
+### Get contact list
+
+```
+- (MXHTTPOperation*)getContactsListWithUserId:(NSString *)userId
+                                      success:(void (^)(MXContactsListResponse *contactsListResponse))success
+                                      failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**:
+
+
+
+| Name      | Type     | Description    | Required |
+| :-------- | :------- | :------------- | :------- |
+| `user_id` | NSString | user id string | true     |
+
+**Output Parameters**
+
+```
+MXContactsListResponse
+```
+
+### Add user as a contact
+
+```
+- (MXHTTPOperation*)addToFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                        tags:(NSArray*)tags
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                     failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**:
+
+
+
+| Name      | Type   | Description                 | Required |
+| :-------- | :----- | :-------------------------- | :------- |
+| `userId`  | NSString | user id string              | true     |
+| contactId | NSString | contact id string           | true     |
+| tags  | NSArray   |tags NSArray | false   |
+| `isRoom`  | bool   | whether is a direct message | true   |
+
+
+### Remove contact
+
+```
+- (MXHTTPOperation*)deleteFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                      failure:(void (^)(NSError *error))failure;
+```
+
+**Input Parameters**:
+
+
+
+| Name        | Type     | Description                 | Required |
+| :---------- | :------- | :-------------------------- | :------- |
+| userId      | NSString | user id string              | true     |
+| `contactId` | NSString | contact id string           | True     |
+| `isRoom`    | BOOL     | whether is a direct message | True     |
+
+**Output Parameters**：
+
+| Name    | Type  | Description                                       | Required |
+| :------ | :---- | :------------------------------------------------ | :------- |
+| success | block | A block object called when the operation succeeds | true     |
+| failure | block | A block object called when the operation fails.   | true     |
+

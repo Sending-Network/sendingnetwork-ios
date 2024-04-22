@@ -2362,7 +2362,7 @@ NSString *const kMXPushRuleScopeStringGlobal = @"global";
         {
             MXJSONModelSetBoolean(capabilities.canChangePassword, changePassword[@"enabled"])
         }
-
+        
         NSDictionary *roomVersionsData = nil;
         MXJSONModelSetDictionary(roomVersionsData, capabilitiesData[@"m.room_versions"]);
         if (roomVersionsData)
@@ -2370,8 +2370,119 @@ NSString *const kMXPushRuleScopeStringGlobal = @"global";
             MXJSONModelSetMXJSONModel(capabilities.roomVersions, MXRoomVersionCapabilities, roomVersionsData)
         }
     }
-
+    
     return capabilities;
+}
+@end
+
+@implementation MXContactPeopleData
+
++ (id)modelFromJSON:(NSDictionary *)JSONDictionary
+{
+    MXContactPeopleData *contactPeopleData = [[MXContactPeopleData alloc] init];
+    if (contactPeopleData)
+    {
+        MXJSONModelSetString(contactPeopleData.contactId, JSONDictionary[@"contact_id"]);
+        MXJSONModelSetString(contactPeopleData.displayName, JSONDictionary[@"displayname"]);
+        MXJSONModelSetString(contactPeopleData.avatarUrl, JSONDictionary[@"avatar_url"]);
+        NSDictionary *extendedFields = nil;
+        MXJSONModelSetDictionary(extendedFields, JSONDictionary[@"extended_fields"]);
+        MXJSONModelSetBoolean(contactPeopleData.isEns, extendedFields[@"ens"]);
+        MXJSONModelSetBoolean(contactPeopleData.nftIsTrial, extendedFields[@"nft_is_trial"]);
+        MXJSONModelSetNumber(contactPeopleData.nftTrialValidUntilMS,extendedFields[@"nft_trial_valid_until_ms"]);
+    }
+    return contactPeopleData;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    if (self = [super init]) {
+        _displayName = [coder decodeObjectForKey:@"displayName"];
+        _contactId = [coder decodeObjectForKey:@"contactId"];
+        _avatarUrl = [coder decodeObjectForKey:@"avatarUrl"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:_displayName forKey:@"displayName"];
+    [coder encodeObject:_contactId forKey:@"contactId"];
+    [coder encodeObject:_avatarUrl forKey:@"avatarUrl"];
+}
+
+- (id)copyWithZone:(NSZone *)zone {
+    MXContactPeopleData *data = [super copyWithZone:zone];
+    data.displayName = _displayName;
+    data.contactId = _contactId;
+    data.avatarUrl = _avatarUrl;
+    return data;
+}
+
+
+- (NSString *)firstChar {
+    NSMutableString *pinyin = [[NSMutableString alloc] initWithString:self.displayName];
+    CFStringTransform((__bridge CFMutableStringRef)pinyin, NULL, kCFStringTransformMandarinLatin, NO);
+    CFStringTransform((__bridge CFMutableStringRef)pinyin, NULL, kCFStringTransformStripDiacritics, NO);
+    NSString *c = [[pinyin substringToIndex:1] uppercaseString];
+    int asc = [c characterAtIndex:0];
+    if (asc >= 65 && asc <= 90) {
+        return c;
+    }else {
+        return @"#";
+    }
+}
+
+- (MXAvatarTrialState)avatarTrialState
+{
+    if (!self.nftIsTrial) {
+        return MXAvatarTrialStateNotOnTrial;
+    }
+    if (self.nftTrialValidUntilMS == 0) return MXAvatarTrialStateNotOnTrial;
+
+    NSTimeInterval _7days = 3600*24*21;
+    NSTimeInterval now = [NSDate.now timeIntervalSince1970];
+    NSTimeInterval expire = self.nftTrialValidUntilMS/1000;
+    if (now < expire) {
+        return MXAvatarTrialStateOnGoing;
+    } else {
+        return MXAvatarTrialStateExpired;
+    }
 }
 
 @end
+
+
+@implementation MXContactsListResponse
+
++ (id)modelFromJSON:(NSDictionary *)JSONDictionary
+{
+    MXContactsListResponse *contactsListResponse = [MXContactsListResponse new];
+    
+    if (contactsListResponse)
+    {
+        MXJSONModelSetArray(contactsListResponse.rooms, JSONDictionary[@"rooms"]);
+        MXJSONModelSetMXJSONModelArray(contactsListResponse.people, MXContactPeopleData, JSONDictionary[@"people"]);
+    }
+    return contactsListResponse;
+}
+
+- (instancetype)initWithCoder:(NSCoder *)coder {
+    if (self = [super init]) {
+        _rooms = [coder decodeObjectForKey:@"rooms"];
+        _people = [coder decodeObjectForKey:@"people"];
+    }
+    return self;
+}
+
+- (void)encodeWithCoder:(NSCoder *)coder {
+    [coder encodeObject:_rooms forKey:@"rooms"];
+    [coder encodeObject:_people forKey:@"people"];
+}
+
+- (BOOL)isEmpty {
+    return self.rooms.count == 0 && self.people.count == 0;
+}
+
+@end
+
+
+

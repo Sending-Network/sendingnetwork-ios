@@ -1521,4 +1521,35 @@ FOUNDATION_EXPORT NSString *const kMXPushRuleScopeStringGlobal;
 
 @end
 
+
+@interface MXContactVerifyResponse : MXJSONModel
+
+@property (nonatomic, assign) BOOL isFavorite;
+
+@end
+
+@interface MXContactPeopleData : MXJSONModel
+@property(nonatomic, assign) BOOL isEns;
+
+@property (nonatomic, nullable) NSString * contactId;
+
+@property (nonatomic, nullable) NSString * displayName;
+
+@property (nonatomic, nullable) NSString * avatarUrl;
+
+@property (nonatomic, assign) BOOL nftIsTrial;
+@property (nonatomic, assign) NSUInteger nftTrialValidUntilMS;
+@property (nonatomic, readonly) MXAvatarTrialState avatarTrialState;
+
+@end
+
+@interface MXContactsListResponse : MXJSONModel
+
+@property (nonatomic, nullable) NSArray<NSString *> * rooms;
+
+@property (nonatomic, nullable) NSArray<MXContactPeopleData *> * people;
+
+- (BOOL)isEmpty;
+@end
+
 MX_ASSUME_MISSING_NULLABILITY_END

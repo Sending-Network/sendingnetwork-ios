@@ -3503,7 +3503,11 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
    NSMutableDictionary *parameters = [NSMutableDictionary dictionary];
     if (order)
     {
-        parameters[@"order"] = order;
+//        parameters[@"order"] = order;
+        // order should be a number
+        NSNumberFormatter *f = [[NSNumberFormatter alloc] init];
+        f.numberStyle = NSNumberFormatterDecimalStyle;
+        parameters[@"order"] = [f numberFromString:order];
     }
 
     NSString *path = [NSString stringWithFormat:@"%@/user/%@/rooms/%@/tags/%@", apiPathPrefix, credentials.userId, roomId, tag];
@@ -6368,11 +6372,19 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
 
 
 - (MXHTTPOperation *)postPreLoginDID:(NSString *)did
+                             address:(NSString*)address
                               success:(void (^) (MXPreLoginResponse *response))success
                              failure:(void (^)(NSError *error))failure {
-    NSString *path = [NSString stringWithFormat:@"_api/client/unstable/did/pre_login1",
-                      kMXAPIPrefixPathUnstable,did];
-    NSDictionary *dic = [NSDictionary dictionaryWithDictionary:@{@"did":did}];
+
+    NSString *path = [NSString stringWithFormat:@"%@/did/pre_login1", kMXAPIPrefixPathUnstable];
+
+    NSMutableDictionary *dic = [NSMutableDictionary dictionary];
+    if(did.length > 0){
+        [dic setObject:did forKey:@"did"];
+    }
+    if (address.length > 0) {
+        [dic setObject:address forKey:@"address"];
+    }
     MXWeakify(self);
     return [httpClient requestWithMethod:@"POST"
                                     path:path
@@ -6473,5 +6485,93 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                      [self dispatchFailure:error inBlock:failure];
                                  }];
 }
+
+#pragma mark - Contacts
+
+- (MXHTTPOperation*)getContactsListWithUserId:(NSString *)userId
+                                      success:(void (^)(MXContactsListResponse *contactsListResponse))success
+                                      failure:(void (^)(NSError *error))failure
+{
+    NSString *path = [NSString stringWithFormat:@"%@/contacts_list/%@", kMXAPIPrefixPathR0, userId];
+    
+    MXWeakify(self);
+    return [httpClient requestWithMethod:@"GET"
+                                    path:path
+                              parameters:@{}
+                                 success:^(NSDictionary *JSONResponse) {
+                                     MXStrongifyAndReturnIfNil(self);
+        
+                                     if (success)
+                                     {
+                                         __block MXContactsListResponse *contactsListResponse;
+                                         [self dispatchProcessing:^{
+                                             MXJSONModelSetMXJSONModel(contactsListResponse, MXContactsListResponse, JSONResponse);
+                                         } andCompletion:^{
+                                             success(contactsListResponse);
+                                         }];
+                                     }
+                                 }
+                                 failure:^(NSError *error) {
+                                     MXStrongifyAndReturnIfNil(self);
+                                     [self dispatchFailure:error inBlock:failure];
+                                 }];
+}
+
+
+- (MXHTTPOperation*)deleteFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                     failure:(void (^)(NSError *error))failure
+{
+    NSString *path = [NSString stringWithFormat:@"%@/contact/%@", kMXAPIPrefixPathR0, userId];
+    NSDictionary * data = @{@"contact_id":contactId ? contactId : @"" , @"is_room": isRoom ? @(1) : @(0) };
+    NSData *payloadData = [NSJSONSerialization dataWithJSONObject:data options:0 error:nil];
+    MXWeakify(self);
+    return [httpClient requestWithMethod:@"DELETE"
+                                    path:path
+                              parameters:nil
+                                    data:payloadData
+                                 headers:@{@"Content-Type": @"application/json"}
+                                 timeout:-1
+                          uploadProgress:nil
+                                 success:^(NSDictionary *JSONResponse) {
+                                     MXStrongifyAndReturnIfNil(self);
+                                     [self dispatchSuccess:success];
+                                 } failure:^(NSError *error) {
+                                     MXStrongifyAndReturnIfNil(self);
+                                     [self dispatchFailure:error inBlock:failure];
+                                 }];
+}
+
+
+- (MXHTTPOperation*)addToFavoritesWithUserId:(NSString *)userId
+                                   contactId:(NSString *)contactId
+                                        tags:(NSArray*)tags
+                                     isRoom:(BOOL)isRoom
+                                     success:(void (^)(void))success
+                                     failure:(void (^)(NSError *error))failure
+{
+    NSString *path = [NSString stringWithFormat:@"%@/contact/%@", kMXAPIPrefixPathR0, userId];
+    NSDictionary *data = @{@"contact_id":contactId ? contactId : @"" , @"is_room": isRoom ? @(1) : @(0) };
+   
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:data];
+    if (tags.count > 0) {
+        dic[@"tags"] = tags;
+    }
+    MXWeakify(self);
+    return [httpClient requestWithMethod:@"PUT"
+                                    path:path
+                              parameters:dic
+                                 success:^(NSDictionary *JSONResponse) {
+                                     MXStrongifyAndReturnIfNil(self);
+                                     [self dispatchSuccess:success];
+                                 }
+                                 failure:^(NSError *error) {
+                                     MXStrongifyAndReturnIfNil(self);
+                                     [self dispatchFailure:error inBlock:failure];
+                                 }];
+}
+
 
 @end

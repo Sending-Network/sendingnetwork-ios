@@ -6486,6 +6486,61 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                  }];
 }
 
+
+
+/// setSignature for self
+/// @param userId userId description
+/// @param signature signature , length <= 100
+/// @param success success description
+/// @param failure failure description
+- (MXHTTPOperation*)setSignatureWithUserId:(NSString *)userId
+                                 signature:(NSString *)signature
+                                   success:(void (^)(void))success
+                                   failure:(void (^)(NSError *error))failure
+{
+    NSString *path = [NSString stringWithFormat:@"%@/profile/%@/signature", kMXAPIPrefixPathR0,userId];
+    MXWeakify(self);
+    return [httpClient requestWithMethod:@"PUT"
+                                    path:path
+                              parameters:@{@"signature":signature}
+                                 success:^(NSDictionary *JSONResponse) {
+        if (success)
+        {
+            [self dispatchSuccess:^{
+                success();
+            }];
+        }
+    }failure:^(NSError *error) {
+        MXStrongifyAndReturnIfNil(self);
+        [self dispatchFailure:error inBlock:failure];
+    }];
+}
+
+- (MXHTTPOperation*)getSignatureWithUserId:(NSString *)userId
+                                   success:(void (^)(NSString * signature))success
+                                   failure:(void (^)(NSError *error))failure
+{
+    NSString *path = [NSString stringWithFormat:@"%@/profile/%@/signature", kMXAPIPrefixPathR0,userId];
+    MXWeakify(self);
+    return [httpClient requestWithMethod:@"GET"
+                                    path:path
+                              parameters:nil
+                                 success:^(NSDictionary *JSONResponse) {
+        if (success)
+        {
+            [self dispatchSuccess:^{
+                success(JSONResponse[@"signature"]);
+            }];
+        }
+    }failure:^(NSError *error) {
+        MXStrongifyAndReturnIfNil(self);
+        [self dispatchFailure:error inBlock:failure];
+    }];
+}
+
+
+
+
 #pragma mark - Contacts
 
 - (MXHTTPOperation*)getContactsListWithUserId:(NSString *)userId

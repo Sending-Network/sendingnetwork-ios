@@ -3113,6 +3113,26 @@ Note: Clients should consider avoiding this endpoint for URLs posted in encrypte
                                       failure:(void (^)(NSError *error))failure ;
 
 
+/// setSignature for self
+/// @param userId userId description
+/// @param signature signature , length <= 100
+/// @param success success description
+/// @param failure failure description
+- (MXHTTPOperation*)setSignatureWithUserId:(NSString *)userId
+                                 signature:(NSString *)signature
+                                   success:(void (^)(void))success
+                                   failure:(void (^)(NSError *error))failure;
+
+/// getSignatureWithUserId for self
+/// @param userId userId description
+/// @param success success description
+/// @param failure failure description
+- (MXHTTPOperation*)getSignatureWithUserId:(NSString *)userId
+                                   success:(void (^)(NSString * signature))success
+                                   failure:(void (^)(NSError *error))failure;
+
+
+
 #pragma mark - Contacts
 
 - (MXHTTPOperation*)getContactsListWithUserId:(NSString *)userId

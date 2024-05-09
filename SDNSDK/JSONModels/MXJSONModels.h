@@ -1541,6 +1541,8 @@ FOUNDATION_EXPORT NSString *const kMXPushRuleScopeStringGlobal;
 @property (nonatomic, assign) NSUInteger nftTrialValidUntilMS;
 @property (nonatomic, readonly) MXAvatarTrialState avatarTrialState;
 
+@property (nonatomic, nullable) NSArray<NSString *> * tags;
+
 @end
 
 @interface MXContactsListResponse : MXJSONModel

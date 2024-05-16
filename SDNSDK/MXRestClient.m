@@ -3547,6 +3547,27 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                  }];
 }
 
+- (MXHTTPOperation *)addInvisibleRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                              failure:(void (^)(NSError *error))failure {
+    NSString *path = [NSString stringWithFormat:@"%@/user/%@/rooms/%@/tags/m.invisible",kMXAPIPrefixPathR0,userId,roomId];
+    MXWeakify(self);
+    NSMutableDictionary *param = @{}.mutableCopy;
+    return [httpClient requestWithMethod:@"PUT"
+                                    path:path
+                              parameters:param
+                                 success:^(NSDictionary *JSONResponse) {
+        if (success)
+        {
+            success();
+        }
+    }failure:^(NSError *error) {
+        MXStrongifyAndReturnIfNil(self);
+        [self dispatchFailure:error inBlock:failure];
+    }];
+}
+
 #pragma mark - Room account data operations
 - (MXHTTPOperation*) updateTaggedEvents:(NSString*)roomId
                             withContent:(MXTaggedEvents *)content

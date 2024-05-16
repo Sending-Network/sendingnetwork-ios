@@ -1808,6 +1808,22 @@ NS_REFINED_FOR_SWIFT;
                       success:(void (^)(void))success
                       failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
 
+/**
+ add Invisible Room
+
+ @param userId  who to invisible
+ @param roomId the id of the room.
+
+ @param success A block object called when the operation succeeds.
+ @param failure A block object called when the operation fails.
+
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation *)addInvisibleRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                              failure:(void (^)(NSError *error))failure;
+
 #pragma mark - Room account data operations
 /**
  Update the tagged events

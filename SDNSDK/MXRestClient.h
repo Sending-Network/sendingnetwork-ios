@@ -1819,7 +1819,7 @@ NS_REFINED_FOR_SWIFT;
 
  @return a MXHTTPOperation instance.
  */
-- (MXHTTPOperation *)addInvisibleRoom:(NSString *)userId
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
                                roomId:(NSString *)roomId
                               success:(void (^) (void))success
                               failure:(void (^)(NSError *error))failure;

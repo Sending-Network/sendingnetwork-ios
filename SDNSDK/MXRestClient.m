@@ -3547,7 +3547,7 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                  }];
 }
 
-- (MXHTTPOperation *)addInvisibleRoom:(NSString *)userId
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
                                roomId:(NSString *)roomId
                               success:(void (^) (void))success
                               failure:(void (^)(NSError *error))failure {

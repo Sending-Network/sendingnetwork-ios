@@ -527,6 +527,12 @@ NSInteger const kMXRoomInvalidInviteSenderErrorCode = 9002;
     return [mxSession hideRoom:userId roomId:roomId success:success failure:failure];
 }
 
+
+- (MXHTTPOperation *)showRoomWithRoomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure {
+    return [mxSession showRoomWithRoomId:roomId success:success failure:failure];
+}
 #pragma mark - Room operations
 
 - (void)getMeetingSvr:(void (^)(NSString  *url))success

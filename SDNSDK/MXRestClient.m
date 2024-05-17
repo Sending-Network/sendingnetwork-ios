@@ -3547,6 +3547,14 @@ andUnauthenticatedHandler: (MXRestClientUnauthenticatedHandler)unauthenticatedHa
                                  }];
 }
 
+
+- (MXHTTPOperation *)showRoomWithroomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure {
+    return  [self removeTag:@"m.invisible" fromRoom:roomId success:success failure:failure];
+}
+
+
 - (MXHTTPOperation *)hideRoom:(NSString *)userId
                                roomId:(NSString *)roomId
                               success:(void (^) (void))success

@@ -932,10 +932,36 @@ typedef void (^MXOnBackgroundSyncFail)(NSError *error);
 
 #pragma mark - visible room
 
+/**
+ add Invisible Room
+
+ @param userId  who to invisible
+ @param roomId the id of the room.
+
+ @param success A block object called when the operation succeeds.
+ @param failure A block object called when the operation fails.
+
+ @return a MXHTTPOperation instance.
+ */
 - (MXHTTPOperation *)hideRoom:(NSString *)userId
                                roomId:(NSString *)roomId
                               success:(void (^) (void))success
                       failure:(void (^)(NSError *error))failure;
+
+
+/**
+  show Room
+ 
+ @param roomId the id of the room.
+
+ @param success A block object called when the operation succeeds.
+ @param failure A block object called when the operation fails.
+
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation *)showRoomWithRoomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                                failure:(void (^)(NSError *error))failure;
 
 #pragma mark - The user's rooms
 /**

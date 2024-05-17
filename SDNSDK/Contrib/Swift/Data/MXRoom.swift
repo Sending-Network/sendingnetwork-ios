@@ -868,6 +868,10 @@ public extension MXRoom {
         return __hide(userId, roomId: roomId, success:  currySuccess(completion), failure: curryFailure(completion))
     }
     
+    @nonobjc @discardableResult func showRoomWithRoomId(roomId: String, completion: @escaping (_ response: MXResponse<Void>) -> Void) -> MXHTTPOperation {
+        return __showRoom(withRoomId: roomId, success:  currySuccess(completion), failure: curryFailure(completion))
+    }
+    
    
     
     // MARK: - Voice Over IP

@@ -286,6 +286,12 @@ FOUNDATION_EXPORT NSInteger const kMXRoomInvalidInviteSenderErrorCode;
                               success:(void (^) (void))success
                       failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
 
+
+
+- (MXHTTPOperation *)showRoomWithRoomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
+
 #pragma mark - Room operations
 
 /**

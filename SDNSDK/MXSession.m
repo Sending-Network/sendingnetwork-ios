@@ -2709,6 +2709,15 @@ typedef void (^MXOnResumeDone)(void);
 }
 
 
+- (MXHTTPOperation *)showRoomWithRoomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                              failure:(void (^)(NSError *error))failure
+{
+    return [sdnRestClient showRoomWithroomId:roomId success:success failure:failure];
+}
+
+
+
 
 #pragma mark - The user's rooms
 - (BOOL)hasRoomWithRoomId:(NSString*)roomId

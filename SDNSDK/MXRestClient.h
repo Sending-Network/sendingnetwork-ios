@@ -1808,6 +1808,21 @@ NS_REFINED_FOR_SWIFT;
                       success:(void (^)(void))success
                       failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
 
+
+/**
+  show Room
+ 
+ @param roomId the id of the room.
+
+ @param success A block object called when the operation succeeds.
+ @param failure A block object called when the operation fails.
+
+ @return a MXHTTPOperation instance.
+ */
+- (MXHTTPOperation *)showRoomWithroomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure;
+
 /**
  add Invisible Room
 

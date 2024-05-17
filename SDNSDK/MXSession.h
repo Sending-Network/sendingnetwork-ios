@@ -930,6 +930,13 @@ typedef void (^MXOnBackgroundSyncFail)(NSError *error);
  */
 - (BOOL)isRoomMarkedAsUnread:(NSString*)roomId;
 
+#pragma mark - visible room
+
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure;
+
 #pragma mark - The user's rooms
 /**
  Check if the user is in a room

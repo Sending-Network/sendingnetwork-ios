@@ -517,6 +517,15 @@ NSInteger const kMXRoomInvalidInviteSenderErrorCode = 9002;
     return storedMessagesCount;
 }
 
+#pragma mark - room visible
+
+
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure {
+    return [mxSession hideRoom:userId roomId:roomId success:success failure:failure];
+}
 
 #pragma mark - Room operations
 

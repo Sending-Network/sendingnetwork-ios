@@ -863,6 +863,12 @@ public extension MXRoom {
         return __addTag(oldTag, withOrder: newTagOrder, success: currySuccess(completion), failure: curryFailure(completion))
     }
     
+    @nonobjc @discardableResult func hideRoom(_ userId: String, roomId: String, completion: @escaping (_ response: MXResponse<Void>) -> Void) -> MXHTTPOperation {
+        
+        return __hide(userId, roomId: roomId, success:  currySuccess(completion), failure: curryFailure(completion))
+    }
+    
+   
     
     // MARK: - Voice Over IP
     

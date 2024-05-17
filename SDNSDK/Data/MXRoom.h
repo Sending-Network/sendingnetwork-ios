@@ -280,6 +280,11 @@ FOUNDATION_EXPORT NSInteger const kMXRoomInvalidInviteSenderErrorCode;
  */
 @property (nonatomic, readonly) NSUInteger storedMessagesCount;
 
+#pragma mark -  Room visible
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                      failure:(void (^)(NSError *error))failure NS_REFINED_FOR_SWIFT;
 
 #pragma mark - Room operations
 

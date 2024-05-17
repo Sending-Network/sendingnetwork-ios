@@ -2697,6 +2697,19 @@ typedef void (^MXOnResumeDone)(void);
         || room.summary.membershipTransitionState == MXMembershipTransitionStateJoining;
 }
 
+#pragma mark - visible room
+
+- (MXHTTPOperation *)hideRoom:(NSString *)userId
+                               roomId:(NSString *)roomId
+                              success:(void (^) (void))success
+                              failure:(void (^)(NSError *error))failure
+{
+    
+    return [sdnRestClient hideRoom:userId roomId:roomId success:success failure:failure];
+}
+
+
+
 #pragma mark - The user's rooms
 - (BOOL)hasRoomWithRoomId:(NSString*)roomId
 {

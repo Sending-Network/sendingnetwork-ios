@@ -2390,6 +2390,8 @@ NSString *const kMXPushRuleScopeStringGlobal = @"global";
         MXJSONModelSetBoolean(contactPeopleData.isEns, extendedFields[@"ens"]);
         MXJSONModelSetBoolean(contactPeopleData.nftIsTrial, extendedFields[@"nft_is_trial"]);
         MXJSONModelSetNumber(contactPeopleData.nftTrialValidUntilMS,extendedFields[@"nft_trial_valid_until_ms"]);
+        MXJSONModelSetArray(contactPeopleData.tags, JSONDictionary[@"tags"]);
+
     }
     return contactPeopleData;
 }
